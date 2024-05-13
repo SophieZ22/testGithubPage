@@ -5,4 +5,4 @@ output:
     df_print: paged
 ---
 ### Test Github Pages
-Learn to write .yml .Rmd or .html files.
+Learn to write .yml .Rmd or .html files for establishing a website.
