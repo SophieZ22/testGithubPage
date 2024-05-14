@@ -19,6 +19,7 @@ output:
     number_sections: true
     highlight: textmate
     code_folding: hide
+    df_print: paged
     # keep_md: true
     
   word_document: default
@@ -35,11 +36,10 @@ showtext_auto()
 # Quarterly Results {.tabset}
 
 learn from:  
-https://bookdown.org/qiushi/rmarkdown-guide/html-document.html
+[rmarkdown-guide-html](https://bookdown.org/qiushi/rmarkdown-guide/html-document.html)
 
 ## Plot a plot
-how to change plot() font size:  
-https://statorials.org/cn/r-%e8%b7%9f%e8%b8%aa%e5%ad%97%e4%bd%93%e5%a4%a7%e5%b0%8f/
+[how to change plot() font size](https://statorials.org/cn/r-%e8%b7%9f%e8%b8%aa%e5%ad%97%e4%bd%93%e5%a4%a7%e5%b0%8f/)
 
 ```{r pressure}
 plot(pressure,main='气压和温度的关系',xlab='温度',ylab='气压',cex.main=3,cex.axis=2,cex.lab=2)

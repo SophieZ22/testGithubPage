@@ -1,8 +1,31 @@
 ---
 title: "testGP"
+author: "SophieZ"
+date: "`r Sys.Date()`"
 output:
+  # rmdformats::readthedown:
+  #   self_contained: true
+  #   thumbnails: true
+  #   lightbox: true
+  #   gallery: false
+  #   highlight: tango
   html_document:
+    theme: readable #journal
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    collapsed: false
+    smooth_scroll: true
+    number_sections: true
+    highlight: textmate
+    # code_folding: hide
+    # keep_md: true
     df_print: paged
+  word_document: default
+  pdf_document:
+    latex_engine: xelatex
+documentclass: ctexart
 ---
-### Test Github Pages
-Learn to write .yml .Rmd or .html files for establishing a website.
+# Test Github Pages
+Learn to use .Rmd to produce .html for the website.  
+To be done: learn how to make subsets on top of the page.
