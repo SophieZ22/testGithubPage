@@ -3,8 +3,10 @@ title: "Test1"
 author: "SophieZ"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
+  pdf_document: 
     latex_engine: xelatex
+    toc: true
+    pandoc_args: "--variable=geometry:margin=1in"
   word_document: default
   html_document:
     theme: readable #journal
@@ -21,7 +23,8 @@ documentclass: ctexart
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,comment='', engine.path = list(python = 'C:\\Users\\sustech\\.conda\\envs\\gdalcartopy\\python.exe'))
+knitr::opts_chunk$set(echo = TRUE,comment='', engine.path = list(python = #'C:\\Users\\sustech\\.conda\\envs\\gdalcartopy\\python.exe',
+'C:\\Users\\zsh\\.conda\\envs\\ese5023\\python.exe'))
 library(showtext)
 showtext_auto()
 ```
@@ -47,6 +50,8 @@ plot(pressure,main='气压和温度的关系',xlab='温度',ylab='气压',cex.ma
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
 
 # Learning materials
 
@@ -166,3 +171,9 @@ library(showtext)
 font_add("simsun", regular = "simsun.ttc")
 showtext_auto()
 ```
+
+
+# To be solved
+1. Can't print to pdf by hand.  
+2. In pdf pictures would be too big.  
+3. Dataframe would exceed right limit of the pdf.  

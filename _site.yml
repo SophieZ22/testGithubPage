@@ -5,23 +5,24 @@ navbar:
   type: inverse
   left:
     - text: "Test1"
-      icon: fa-bell-o
+      icon: fa-pen-nib
       href: test1.html
     - text: "Test2"
-      icon: fa-calendar
+      icon: fa-clipboard
       href: test2.html
     - text: "Return"
-      icon: fa-wrench
+      icon: fa-house
       href: index.html
     - text: "Collection"
-      icon: fa-laptop
+      icon: fa-bars
       menu:
+        - text: "Index"
+          href: index.html
         - text: "Test 01"
           href: test1.html
         - text: "Test 02"
           href: test2.html
-        - text: "Index"
-          href: index.html
+        
 output:
   html_document:
     theme: readable

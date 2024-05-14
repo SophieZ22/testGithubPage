@@ -3,7 +3,8 @@ title: "Test2"
 author: "SophieZ"
 date: "`r Sys.Date()`"
 output:
-  # rmdformats::readthedown:
+  pdf_document:
+    latex_engine: xelatex
   #   self_contained: true
   #   thumbnails: true
   #   lightbox: true
@@ -21,10 +22,8 @@ output:
     code_folding: hide
     df_print: paged
     # keep_md: true
-    
   word_document: default
-  pdf_document:
-    latex_engine: xelatex
+  # rmdformats::readthedown:
 documentclass: ctexart
 ---
 ```{r setup, include=FALSE}
