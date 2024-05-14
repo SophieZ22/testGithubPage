@@ -1,0 +1,163 @@
+---
+title: "Test1"
+author: "SophieZ"
+date: "`r Sys.Date()`"
+output:
+  html_document: 
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    collapsed: false
+    smooth_scroll: true
+    number_sections: true
+  word_document: default
+  pdf_document:
+    latex_engine: xelatex
+documentclass: ctexart
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,comment='', engine.path = list(python = 'C:\\Users\\sustech\\.conda\\envs\\gdalcartopy\\python.exe'))
+library(showtext)
+showtext_auto()
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## References
+
+How to use Rmarkdown: <https://blog.csdn.net/weixin_43843918/article/details/128060062>
+
+## Test: Implement python in Rmd
+
+Learn from <https://blog.csdn.net/weixin_38008864/article/details/108191385>
+and https://bookdown.org/yihui/rmarkdown/language-engines.html
+
+You can also change the engine interpreters globally for multiple engines, e.g.,
+```
+knitr::opts_chunk$set(engine.path = list(
+  python = '~/anaconda/bin/python',
+  ruby = '/usr/local/bin/ruby'
+))
+```
+
+### install package:
+
+```{r}
+# install.packages("reticulate")
+```
+
+### introduce library:
+
+```{r,warning=FALSE}
+library(reticulate)
+# use_python('C:\\Users\\sustech\\.conda\\envs\\gdalcartopy\\python.exe')
+```
+
+### run python code:
+
+```{python}
+import numpy as np 
+import matplotlib.pyplot as plt 
+# 计算正弦曲线上点的 x 和 y 坐标
+x = np.arange(0,  3  * np.pi,  0.1) 
+y = np.sin(x)
+plt.title("sine wave form")  
+# 使用 matplotlib 来绘制点
+plt.plot(x, y) 
+plt.show()
+```
+
+### call python variable in R code:
+
+```{r}
+py$y
+```
+
+### import python packages in R code:
+
+```{r}
+library(reticulate)
+#导入库
+os <- import("os")
+#os库的listdir函数
+os$listdir()
+```
+
+PS: 在R代码块中执行Python代码时，默认会将Python对象转为R对象。
+
+### introduce python variable from .py file in R code:
+
+```{r,collapse=TRUE}
+library(reticulate)
+source_python("helloworld.py")
+print(A)
+print(B)
+paste0(A, B)
+```
+
+### run .py file in R code:
+
+```{r,comment=''}
+library(reticulate)
+py_run_file("helloworld.py")
+```
+
+## In-line code
+
+we can run code between text like this: date: `r Sys.Date()` date: 最近更新日期为`r format(Sys.time(), '%d %B, %Y')`
+
+## Journal article templates for R markdown
+rticles: https://github.com/rstudio/rticles
+
+## Chinese not showed in PDF
+Solution in https://blog.csdn.net/xlf5323/article/details/136418610#:~:text=%E5%9C%A8%E4%BD%BF%E7%94%A8%20R%20Markdown%20%E7%BC%96%E5%86%99%E6%96%87%E6%A1%A3%E5%B9%B6%E5%AF%BC%E5%87%BA%E4%B8%BA%20PDF%20%E6%A0%BC%E5%BC%8F%E6%97%B6%EF%BC%8C%E7%BB%8F%E5%B8%B8%E4%BC%9A%E9%81%87%E5%88%B0%E4%B8%80%E4%B8%AA%E6%99%AE%E9%81%8D%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A%E4%B8%AD%E6%96%87%E5%A4%B1%E6%95%88%E3%80%82%20%E6%88%96%E8%80%85%E5%AF%BC%E5%87%BA%E7%9A%84%E6%96%87%E6%A1%A3%E4%B8%AD%E6%96%87%E5%AD%97%E7%AC%A6%E6%AE%8B%E7%BC%BA%20%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95,title%3A%20%22%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3%22%20documentclass%3A%20ctexart%20output%3A%20pdf_document%3A%20latex_engine%3A%20xelatex
+
+### 1 in the doc
+Change output:latex_engine and documentclass like this:
+
+```
+title: "中文文档"
+documentclass: ctexart
+output:
+  pdf_document:
+    latex_engine: xelatex
+```
+
+### 2 in the output plot
+
+在Rmd正文最开始写上
+
+```
+{r setup, include=FALSE}
+library(showtext)
+showtext_auto()
+```
+
+如果不喜欢showtext默认的字体，可以自行添加字体
+
+```
+{r setup, include=FALSE}
+library(showtext)
+font_add("simsun", regular = "simsun.ttc")
+showtext_auto()
+```
