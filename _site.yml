@@ -1,0 +1,28 @@
+name: "testGithubPages"
+output_dir: "docs" # docs directory of master branch
+navbar:
+  title: "Directory Site"
+  type: inverse
+  left:
+    - text: "Test1"
+      icon: fa-bell-o
+      href: test1.html
+    - text: "Test2"
+      icon: fa-calendar
+      href: test2.html
+    - text: "Return"
+      icon: fa-wrench
+      href: index.html
+    - text: "Collection"
+      icon: fa-laptop
+      menu:
+        - text: "Test 01"
+          href: test1.html
+        - text: "Test 02"
+          href: test2.html
+        - text: "Index"
+          href: index.html
+output:
+  html_document:
+    theme: readable
+    highlight: pygments
