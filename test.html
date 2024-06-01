@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Page</title>
+    <script>
+        function handleAction(isLogin) {
+            var name = document.getElementById("name").value;
+            var password = document.getElementById("password").value;
+            
+            var storedName = localStorage.getItem("name");
+            var storedPassword = localStorage.getItem("password");
+            var initialPage = "https://sophiez22.github.io/testGithubPage/";
+
+            if (isLogin) {
+                if (storedName === name && storedPassword === password) {
+                    alert("Welcome back!");
+                    // Redirect to the initial page
+                    window.location.href = initialPage;
+                } else {
+                    alert("You are not registered yet!");
+                    // Redirect to the initial page
+                    // window.location.href = initialPage;
+                }
+            } else {
+                if (storedName === name) {
+                    alert("You are already registered! Please login.");
+                    // Redirect to the initial page
+                    // window.location.href = initialPage;
+                } else {
+                    localStorage.setItem("name", name);
+                    localStorage.setItem("password", password);
+                    alert("Welcome, you have successfully registered!");
+                    // Redirect to the initial page
+                    window.location.href = initialPage;
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Login Page</h1>
+    
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required><br><br>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+    
+    <button onclick="handleAction(true)">Login</button>
+    <button onclick="handleAction(false)">Register</button>
+</body>
+</html>
