@@ -1,0 +1,226 @@
+---
+title: "USGSDataRetrieval"
+author: "SophieZ"
+date: "`r Sys.Date()`"
+output:
+  editor_options: 
+    chunk_output_type: console
+  html_document:
+    theme: readable #journal
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    collapsed: true
+    smooth_scroll: true
+    number_sections: true
+    # highlight: textmate
+    code_folding: show # hide
+    df_print: paged
+documentclass: ctexart
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,comment='', engine.path = list(python = #'C:\\Users\\sustech\\.conda\\envs\\gdalcartopy\\python.exe',
+'C:\\Users\\zsh\\.conda\\envs\\ese5023\\python.exe'))
+library(showtext)
+showtext_auto()
+```
+
+# USGS 水数据检索
+
+[使用R检索USGS水数据——dataRetrieval教程](https://waterdata.usgs.gov/blog/dataretrieval/)
+
+## 安装/载入/打开说明
+
+```{r}
+# 安装包
+# install.packages("dataRetrieval")
+# 载入包
+library(dataRetrieval)
+# 打开主包介绍"
+vignette("dataRetrieval", package = "dataRetrieval")
+```
+
+## 简单尝试
+
+### USGS 基本检索
+USGS编码包括站点ID、参数编码和统计编码（日统计量）。  
+
+The USGS uses various codes for basic retrievals. These codes can have leading zeros, therefore in R they need to be a character (“01234567”).  
+Site ID (often 8 or 15-digits)  
+Parameter Code (5 digits)  
+  [Full list](https://nwis.waterdata.usgs.gov/usa/nwis/pmcodes)  
+  Alternatively use readNWISpCode("all")  
+Statistic Code (for daily values)  
+
+Some examples of a few codes:  
+|Parameter Codes    |Short Name   |Statistic Codes    |Short Name|
+|---|---|---|---|
+|00060    |Discharge    |00001    |Maximum|
+|00065    |Gage Height    |00002    |Minimum|
+|00010    |Temperature    |00003    |Mean|
+|00400    |pH   |00008    |Median|
+
+Greping specific parameters:  
+
+```{r}
+# 获取所有参数编码
+pcode <- readNWISpCode("all")
+# 用grep函数获取特定参数的编码，案例是获取磷的
+phosCds <- pcode[grep("discharge",
+                      pcode$parameter_nm,
+                      ignore.case=TRUE),]
+# phosCds是一个dataframe, 用names函数显示列名
+names(phosCds)
+# 显示包含discharge字符串的这些参数的单位（不重复）
+unique(phosCds$parameter_units)
+
+```
+### 用户友好检索 NWIS
+
+如果已知 1.数据类型（地表水、单位、水质、每日统计量等）2.USGS站点编号 3.USGS参数编码 4.大体时间（开始和结束日期），可以用NWIS服务的多个函数（输入都是站点编号+参数编码+开始时间+结束时间）来获取数据  
+
+|Function Name    |Data|
+|---|---|
+|readNWISuv   |Unit|
+|readNWISdv   |Daily|
+|readNWISgwl    |Groundwater Level|
+|readNWISmeas   |Surface-water|
+|readNWISpeak   |Peak Flow|
+|readNWISqw   |Water Quality|
+|readNWISrating   |Rating Curves|
+|readNWISuse    |Water Use|
+|readNWISstat   |Statistics|
+
+尝试获取某个站点的流量数据吧
+
+```{r}
+siteNo <- "05427948"
+pCode <- "00060"
+start.date <- "2017-10-01"
+end.date <- "2018-09-30"
+
+pheasant <- readNWISuv(siteNumbers = siteNo,
+                     parameterCd = pCode,
+                     startDate = start.date,
+                     endDate = end.date)
+names(pheasant)
+
+```
+列的名称基于参数和统计代码。 可以使用便利功能清理名称：renameNWISColumns
+
+```{r}
+pheasant <- renameNWISColumns(pheasant)
+names(pheasant)
+
+```
+返回的数据还附加了多个属性框架。可以用names(attributes())来查看属性是什么。每个框架都应具有以下属性：url、siteInfo、 和 variableInfo。其他属性是否可用取决于具体数据。
+
+```{r}
+names(attributes(pheasant))
+# 访问不同属性
+url <- attr(pheasant, "url")
+url
+
+```
+可以制作一个简单的图表来查看数据：
+```{r}
+library(ggplot2)
+ts <- ggplot(data = pheasant,
+             aes(dateTime, Flow_Inst)) +
+      geom_line()
+ts
+
+```
+可以得到一个简单的随时间变化的流量图。  
+当然也可以使用附加到数据框的属性来创建其他标签
+```{r}
+parameterInfo <- attr(pheasant, "variableInfo")
+siteInfo <- attr(pheasant, "siteInfo")
+  
+ts <- ts +
+      xlab("") +
+      ylab(parameterInfo$variableDescription) +
+      ggtitle(siteInfo$station_nm)
+ts
+
+```
+### 使用NWIS发现数据
+在知道站点编号时，一切都很顺利，但是如果不知道站点编号，可以通过以下方式获取帮助：  
+whatNWISsites查找指定筛选器中的站点（更快）  
+whatNWISdata汇总指定筛选器中的数据（更多 信息）  
+有几种方法可以指定请求。以下链接可以查看所有过滤选项：<http://waterservices.usgs.gov/>  
+可用的地理过滤器包括单个站点、单个状态、一个地理边界框或 HUC（水文单位代码）。 该功能的帮助页面可通过?readNWISdata指令获得。
+
+#### 一些简单例子  
+
+```{r}
+# Daily temperature in Ohio
+dataTemp <- readNWISdata(stateCd = "OH", 
+                         parameterCd = "00010",
+                         service="dv") 
+
+# Real-time discharge at a site
+instFlow <- readNWISdata(sites = "05114000",
+                         service = "iv", 
+                         parameterCd = "00060", 
+                         startDate = "2014-05-01T00:00Z",
+                         endDate = "2014-05-01T12:00Z",
+                         tz = "America/Chicago") 
+
+# Temperature within a bounding box:
+bBoxEx <- readNWISdata(bBox = c(-83,36.5,-81,38.5),
+                       parameterCd = "00010")
+
+# Groundwater levels within a HUC:
+groundwaterHUC <- readNWISdata(huc="02070010",
+                               service="gwlevels")
+
+```
+
+#### 亚利桑那州的例子
+看下亚利桑那州的哪些站点测过磷
+```{r}
+AZ_sites <- whatNWISsites(stateCd = "AZ", 
+                          parameterCd = "00665")
+nrow(AZ_sites)
+
+```
+```{r}
+names(AZ_sites)
+
+```
+在地图上查看这些站点
+[CRAN空间数据分析](https://cran.r-project.org/web/views/Spatial.html)，在ggsn和rgdal包失效情况下阅读了解。
+
+```{r}
+library(ggplot2)
+library(stars)
+library(terra)
+library(sf)
+library(dplyr)
+
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE),
+                  crs = 4269)
+
+sf_az <- st_as_sf(AZ_sites, 
+                  coords = c("dec_long_va", "dec_lat_va"),
+                  crs = 4269)
+ggplot() +
+    geom_sf(data = usa[ usa$ID == "arizona"]) +
+    geom_sf(data = sf_az) + 
+    xlab(NULL)+
+    ylab(NULL)+
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5)) 
+    # north(sf_az, symbol=10, location="bottomleft") 
+    # 不是ggsn的north方法，而是terra的north方法，所以有变化
+north(cbind(5.8, 50.1))
+    # scalebar(usa[ usa$ID == "arizona" ,],
+    #          dist=100, dist_unit="mi", st.size = 3,
+    #          transform=TRUE, model="WGS84")
+
+```
+
+
