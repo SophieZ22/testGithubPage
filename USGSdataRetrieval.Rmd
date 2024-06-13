@@ -95,10 +95,10 @@ unique(phosCds$parameter_units)
 尝试获取某个站点的流量数据吧
 
 ```{r}
-siteNo <- "05427948"
+siteNo <- "06818000"
 pCode <- "00060"
-start.date <- "2017-10-01"
-end.date <- "2018-09-30"
+start.date <- "2003-01-01"
+end.date <- "2011-12-31"
 
 pheasant <- readNWISuv(siteNumbers = siteNo,
                      parameterCd = pCode,
