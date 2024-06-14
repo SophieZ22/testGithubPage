@@ -95,10 +95,10 @@ unique(phosCds$parameter_units)
 尝试获取某个站点的流量数据吧
 
 ```{r}
-siteNo <- "05427948"
+siteNo <- "06818000"
 pCode <- "00060"
-start.date <- "2017-10-01"
-end.date <- "2018-09-30"
+start.date <- "1980-01-01"
+end.date <- "2020-12-31"
 
 pheasant <- readNWISuv(siteNumbers = siteNo,
                      parameterCd = pCode,
@@ -117,10 +117,15 @@ names(pheasant)
 返回的数据还附加了多个属性框架。可以用names(attributes())来查看属性是什么。每个框架都应具有以下属性：url、siteInfo、 和 variableInfo。其他属性是否可用取决于具体数据。
 
 ```{r}
-names(attributes(pheasant))
+nn<-names(attributes(pheasant))
+print(nn)
 # 访问不同属性
 url <- attr(pheasant, "url")
-url
+siteInfo <- attr(pheasant,"siteInfo")
+variableInfo<- attr(pheasant,"variableInfo")
+print(url)
+print(siteInfo)
+print(variableInfo)
 
 ```
 可以制作一个简单的图表来查看数据：
@@ -145,6 +150,17 @@ ts <- ts +
 ts
 
 ```
+将获取的数据存入csv
+```{r}
+fn <- "D:\\Program1\\study\\yan1\\remote_sensing_hydrology\\final_proj\\data\\discharge\\site06818000\\discharge.csv"
+write.csv(pheasant,fn,row.names= TRUE )
+fn <- "D:\\Program1\\study\\yan1\\remote_sensing_hydrology\\final_proj\\data\\discharge\\site06818000\\siteInfo.csv"
+write.csv(siteInfo,fn,row.names= TRUE )
+fn <- "D:\\Program1\\study\\yan1\\remote_sensing_hydrology\\final_proj\\data\\discharge\\site06818000\\variableInfo.csv"
+write.csv(variableInfo,fn,row.names= TRUE )
+```
+
+
 ### 使用NWIS发现数据
 在知道站点编号时，一切都很顺利，但是如果不知道站点编号，可以通过以下方式获取帮助：  
 whatNWISsites查找指定筛选器中的站点（更快）  
