@@ -4,10 +4,10 @@ navbar:
   title: "Directory Site"
   type: inverse
   left:
-    - text: "Test1"
+    - text: "Start Up"
       icon: fa-pen-nib
       href: test1.html
-    - text: "Test2"
+    - text: "Python Notes"
       icon: fa-clipboard
       href: test2.html
     - text: "Return"
@@ -18,11 +18,11 @@ navbar:
       menu:
         - text: "Index"
           href: index.html
-        - text: "Test 01"
+        - text: "Start Up"
           href: test1.html
-        - text: "Test 02"
+        - text: "Python Notes"
           href: test2.html
-        
+
 output:
   html_document:
     theme: readable

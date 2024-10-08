@@ -11,11 +11,11 @@
 
 <meta name="author" content="SophieZ" />
 
-<meta name="date" content="2024-05-14" />
+<meta name="date" content="2024-10-08" />
 
-<title>Test1</title>
+<title>Start Up</title>
 
-<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.27/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
@@ -73,7 +73,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -431,14 +431,14 @@ div.tocify {
   <a href="test1.html">
     <span class="fa fa-pen-nib"></span>
      
-    Test1
+    Start Up
   </a>
 </li>
 <li>
   <a href="test2.html">
     <span class="fa fa-clipboard"></span>
      
-    Test2
+    Python Notes
   </a>
 </li>
 <li>
@@ -461,10 +461,10 @@ div.tocify {
       <a href="index.html">Index</a>
     </li>
     <li>
-      <a href="test1.html">Test 01</a>
+      <a href="test1.html">Start Up</a>
     </li>
     <li>
-      <a href="test2.html">Test 02</a>
+      <a href="test2.html">Python Notes</a>
     </li>
   </ul>
 </li>
@@ -488,9 +488,9 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Test1</h1>
+<h1 class="title toc-ignore">Start Up</h1>
 <h4 class="author">SophieZ</h4>
-<h4 class="date">2024-05-14</h4>
+<h4 class="date">2024-10-08</h4>
 
 </div>
 
@@ -519,7 +519,9 @@ chunk like this:</p>
 <div id="including-plots" class="section level2" number="1.2">
 <h2><span class="header-section-number">1.2</span> Including Plots</h2>
 <p>You can also embed plots, for example:</p>
-<p><img src="test1_files/figure-html/pressure-1.png" width="672" /></p>
+<p><img src="test1_files/figure-html/pressure-1.png" width="672" /> <a
+href="https://statorials.org/cn/r-%e8%b7%9f%e8%b8%aa%e5%ad%97%e4%bd%93%e5%a4%a7%e5%b0%8f/">how
+to change plot() font size</a></p>
 <p>Note that the <code>echo = FALSE</code> parameter was added to the
 code chunk to prevent printing of the R code that generated the
 plot.</p>
@@ -554,7 +556,7 @@ package:</h3>
 <h3><span class="header-section-number">2.1.2</span> introduce
 library:</h3>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># use_python(&#39;C:\\Users\\sustech\\.conda\\envs\\gdalcartopy\\python.exe&#39;)</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>reticulate<span class="sc">::</span><span class="fu">use_condaenv</span>(<span class="st">&#39;gdalcartopy&#39;</span>) <span class="co">#需要先在Rstudio的Global Options里将该python解释器添加</span></span></code></pre></div>
 </div>
 <div id="run-python-code" class="section level3" number="2.1.3">
 <h3><span class="header-section-number">2.1.3</span> run python
@@ -602,9 +604,11 @@ packages in R code:</h3>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>os <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">&quot;os&quot;</span>)</span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#os库的listdir函数</span></span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>os<span class="sc">$</span><span class="fu">listdir</span>()</span></code></pre></div>
-<pre><code> [1] &quot;.git&quot;          &quot;.Rhistory&quot;     &quot;docs&quot;          &quot;helloworld.py&quot;
- [5] &quot;index.Rmd&quot;     &quot;README.md&quot;     &quot;test1.Rmd&quot;     &quot;test1_files&quot;  
- [9] &quot;test2.Rmd&quot;     &quot;_site.yml&quot;    </code></pre>
+<pre><code> [1] &quot;.git&quot;                  &quot;.Rhistory&quot;             &quot;docs&quot;                 
+ [4] &quot;helloworld.py&quot;         &quot;index.Rmd&quot;             &quot;README.md&quot;            
+ [7] &quot;test.html&quot;             &quot;test1.pdf&quot;             &quot;test1.Rmd&quot;            
+[10] &quot;test1_files&quot;           &quot;test2.Rmd&quot;             &quot;USGSdataRetrieval.Rmd&quot;
+[13] &quot;_site.yml&quot;            </code></pre>
 <p>PS: 在R代码块中执行Python代码时，默认会将Python对象转为R对象。</p>
 </div>
 <div id="introduce-python-variable-from-.py-file-in-r-code"
@@ -613,26 +617,26 @@ class="section level3" number="2.1.6">
 variable from .py file in R code:</h3>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">source_python</span>(<span class="st">&quot;helloworld.py&quot;</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>Hello world<span class="sc">!</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="fu">print</span>(A)</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">&quot;Hello&quot;</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="fu">print</span>(B)</span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">&quot;world&quot;</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="fu">paste0</span>(A, B)</span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">&quot;Helloworld&quot;</span></span></code></pre></div>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>Hello world<span class="sc">!</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">print</span>(A)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">&quot;Hello&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">print</span>(B)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">&quot;world&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">paste0</span>(A, B)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">&quot;Helloworld&quot;</span></span></code></pre></div>
 </div>
 <div id="run-.py-file-in-r-code" class="section level3" number="2.1.7">
 <h3><span class="header-section-number">2.1.7</span> run .py file in R
 code:</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">py_run_file</span>(<span class="st">&quot;helloworld.py&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">py_run_file</span>(<span class="st">&quot;helloworld.py&quot;</span>)</span></code></pre></div>
 <pre><code>Hello world!</code></pre>
 </div>
 </div>
 <div id="in-line-code" class="section level2" number="2.2">
 <h2><span class="header-section-number">2.2</span> In-line code</h2>
-<p>we can run code between text like this: date: 2024-05-14 date:
-最近更新日期为14 五月, 2024</p>
+<p>we can run code between text like this: date: 2024-10-08 date:
+最近更新日期为08 十月, 2024</p>
 </div>
 <div id="journal-article-templates-for-r-markdown"
 class="section level2" number="2.3">
@@ -645,8 +649,9 @@ templates for R markdown</h2>
 PDF</h2>
 <p>Solution <a
 href="https://blog.csdn.net/xlf5323/article/details/136418610#:~:text=%E5%9C%A8%E4%BD%BF%E7%94%A8%20R%20Markdown%20%E7%BC%96%E5%86%99%E6%96%87%E6%A1%A3%E5%B9%B6%E5%AF%BC%E5%87%BA%E4%B8%BA%20PDF%20%E6%A0%BC%E5%BC%8F%E6%97%B6%EF%BC%8C%E7%BB%8F%E5%B8%B8%E4%BC%9A%E9%81%87%E5%88%B0%E4%B8%80%E4%B8%AA%E6%99%AE%E9%81%8D%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A%E4%B8%AD%E6%96%87%E5%A4%B1%E6%95%88%E3%80%82%20%E6%88%96%E8%80%85%E5%AF%BC%E5%87%BA%E7%9A%84%E6%96%87%E6%A1%A3%E4%B8%AD%E6%96%87%E5%AD%97%E7%AC%A6%E6%AE%8B%E7%BC%BA%20%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95,title%3A%20%22%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3%22%20documentclass%3A%20ctexart%20output%3A%20pdf_document%3A%20latex_engine%3A%20xelatex">here</a></p>
-<div id="in-the-words" class="section level3" number="2.4.1">
-<h3><span class="header-section-number">2.4.1</span> in the words</h3>
+<div id="in-the-pdf-words" class="section level3" number="2.4.1">
+<h3><span class="header-section-number">2.4.1</span> in the pdf
+words</h3>
 <p>Change output: latex_engine and documentclass like this:</p>
 <pre><code>title: &quot;中文文档&quot;
 documentclass: ctexart
@@ -669,15 +674,53 @@ showtext_auto()</code></pre>
 </div>
 </div>
 </div>
-<div id="to-be-solved" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> To be solved</h1>
-<ol style="list-style-type: decimal">
-<li>Can’t print to pdf by hand.<br />
-</li>
-<li>In pdf pictures would be too big.<br />
-</li>
-<li>Dataframe would exceed right limit of the pdf.</li>
-</ol>
+<div id="to-be-solved" class="section level1 tabset" number="3">
+<h1 class="tabset"><span class="header-section-number">3</span> To be
+solved</h1>
+<p>{.tabset} example:</p>
+<p>learn from:<br />
+<a
+href="https://bookdown.org/qiushi/rmarkdown-guide/html-document.html">rmarkdown-guide-html</a></p>
+<p>输出为pdf时.tabset无效，只能在html中使用。</p>
+<div id="无法手动生成pdf" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> 无法手动生成pdf</h2>
+<p>点击RStudio中的Knit to PDF按钮无法生成pdf，而是会生成html；Knit with
+parameters命令则会报错显示<code>Unable to edit parameters (the R session is currently busy).</code></p>
+<p>若要生成pdf需要在R
+Console中输入命令<code>rmarkdown::render("your_file_name.Rmd", output_format = "pdf_document")</code>。</p>
+<p>详见<a
+href="https://www.geeksforgeeks.org/generate-pdf-from-rmarkdown-file-with-r/">参考网站</a>。</p>
+</div>
+<div id="pdf中图片过大" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> pdf中图片过大</h2>
+<p>In pdf pictures would be too big. Tried some methods but not
+useful.</p>
+</div>
+<div id="代码注释输出超出pdf边界" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span>
+代码注释/输出超出pdf边界</h2>
+<p>Dataframe would exceed right limit of the pdf.<br />
+May ask gpt about this.</p>
+</div>
+<div id="其他说明" class="section level2 tabset" number="3.4">
+<h2 class="tabset"><span class="header-section-number">3.4</span>
+其他说明</h2>
+<p>有关标题标签页</p>
+<div id="标题标签页" class="section level3" number="3.4.1">
+<h3><span class="header-section-number">3.4.1</span> 标题标签页</h3>
+<p>同样适用于二级标题</p>
+</div>
+<div id="某一级标题采用标签页模式后" class="section level3"
+number="3.4.2">
+<h3><span class="header-section-number">3.4.2</span>
+某一级标题采用标签页模式后</h3>
+<p>可以接正常的同级或上级标题</p>
+</div>
+</div>
+</div>
+<div id="reference" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Reference</h1>
+<p>已在文中列出</p>
 </div>
 
 

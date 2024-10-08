@@ -1,15 +1,8 @@
 ---
-title: "Test2"
+title: "Python Notes"
 author: "SophieZ"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    latex_engine: xelatex
-  #   self_contained: true
-  #   thumbnails: true
-  #   lightbox: true
-  #   gallery: false
-  #   highlight: tango
   html_document:
     theme: readable #journal
     toc: true
@@ -22,33 +15,533 @@ output:
     code_folding: hide
     df_print: paged
     # keep_md: true
+  #   self_contained: true
+  #   thumbnails: true
+  #   lightbox: true
+  #   gallery: false
+  #   highlight: tango
+  pdf_document:
+    latex_engine: xelatex
   word_document: default
   # rmdformats::readthedown:
 documentclass: ctexart
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,comment='',engine.path = list(python = 'C:\\Users\\sustech\\.conda\\envs\\gdalcartopy\\python.exe'))
+userdir=Sys.getenv("USERPROFILE")
+pypath=file.path(userdir,'.conda/envs/gdalcartopy/python.exe')
+knitr::opts_chunk$set(echo = TRUE,comment='', engine.path = list(python = file.path(userdir,'.conda\\envs\\gdalcartopy\\python.exe') ) )
+reticulate::use_condaenv('gdalcartopy') #需要先在Rstudio的Global Options里将该python解释器添加
 library(showtext)
 showtext_auto()
 ```
 
-# Quarterly Results {.tabset}
 
-learn from:  
-[rmarkdown-guide-html](https://bookdown.org/qiushi/rmarkdown-guide/html-document.html)
+# Matplotlib
 
-## Plot a plot
-[how to change plot() font size](https://statorials.org/cn/r-%e8%b7%9f%e8%b8%aa%e5%ad%97%e4%bd%93%e5%a4%a7%e5%b0%8f/)
+## Dashes format of gridlines {.tabset-fade}
 
-```{r pressure}
-plot(pressure,main='气压和温度的关系',xlab='温度',ylab='气压',cex.main=3,cex.axis=2,cex.lab=2)
+gls=ax.gridlines(linestyle='--')后，无法通过gls.set_dashes([5,10])更改虚线间隔。
+
+### Correct
+
+```
+gls = ax.gridlines(linestyle=(0, (10, 5)))
 ```
 
-## Dataset summary
+更多样化的linestyle见[Linestyles — Matplotlib 3.9.1 documentation](https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html)
 
-run R code chunk like this:
+### Failed Attempt
 
-```{r cars}
-summary(cars)
+```
+gxlines = gls.xline_artists
+for line in gxlines:
+    # print(line.get_linestyle())
+    line.set_linestyle((0, (5, 10)))
+    # print(line.get_dashes())
 ```
 
+画图完成后能获取gxlines对象并按对该对象使用上述方法，但是无法影响已画好的图，画图时gxlines为空，不能通过该对象调整虚线间隔，不清楚其中原理。
+
+此外，gls.xlines是bool，控制是否出现xlines。
+
+## North Arrow & Scalebar
+
+### North Arrow
+
+```
+import matplotlib.patches as mpatches
+def add_north(ax, labelsize=20, loc_x=0.9, loc_y=0.9, width=0.02, height=0.1, pad=0.14,fontcolor='k'):
+    '''https://blog.csdn.net/qq_44907989/article/details/125584822'''
+    """
+    画一个比例尺带'N'文字注释
+    主要参数如下
+    ax: 要画的坐标区域 Axes实例 plt.gca()获取即可
+    labelsize: 显示'N'文字的大小
+    loc_x: 以文字下部为中心的占整个ax横向比例
+    loc_y: 以文字下部为中心的占整个ax纵向比例
+    width: 指南针占ax比例宽度
+    height: 指南针占ax比例高度
+    pad: 文字符号占ax比例间隙
+    return: None
+    """
+    minx, maxx = ax.get_xlim()
+    miny, maxy = ax.get_ylim()
+    ylen = maxy - miny
+    xlen = maxx - minx
+    left = [minx + xlen*(loc_x - width*.5), miny + ylen*(loc_y - pad)]
+    right = [minx + xlen*(loc_x + width*.5), miny + ylen*(loc_y - pad)]
+    top = [minx + xlen*loc_x, miny + ylen*(loc_y - pad + height)]
+    center = [minx + xlen*loc_x, left[1] + (top[1] - left[1])*.4]
+    triangle = mpatches.Polygon([left, top, right, center], facecolor='k',edgecolor='k',linewidth=1.5)
+    ax.text(s='N',
+            x=minx + xlen*loc_x,
+            y=miny + ylen*(loc_y - pad + height),
+            fontsize=labelsize,
+            fontweight='semibold',
+            horizontalalignment='center',
+            verticalalignment='bottom',
+            color=fontcolor,)
+    ax.add_patch(triangle)
+```
+### Scalebar
+
+粗略以1度为111公里换算。
+
+```
+def add_scalebar(ax,lon0,lat0,length,size=0.45,labelsize=20,fontcolor='k',pad=0.02,linewidth=1.5,unitfrac=2.43):
+    '''https://blog.csdn.net/qq_44907989/article/details/125584822'''
+    '''
+    ax: 坐标轴
+    lon0: 经度
+    lat0: 纬度
+    length: 长度
+    size: 控制粗细和距离的
+    '''
+    # style 3
+    ax.hlines(y=lat0,  xmin = lon0, xmax = lon0+length/111, colors="black", ls="-", lw=linewidth, label='%d km' % (length))
+    ax.vlines(x = lon0, ymin = lat0, ymax = lat0+size, colors="black", ls="-", lw=linewidth)
+    ax.vlines(x = lon0+length/2/111, ymin = lat0, ymax = lat0+size, colors="black", ls="-", lw=linewidth)
+    ax.vlines(x = lon0+length/111, ymin = lat0, ymax = lat0+size, colors="black", ls="-", lw=linewidth)
+    ax.text(lon0+length/111,lat0+size+pad,'%d' % (length),horizontalalignment = 'center',fontsize=labelsize,color=fontcolor)
+    ax.text(lon0+length/2/111,lat0+size+pad,'%d' % (length/2),horizontalalignment = 'center',fontsize=labelsize,color=fontcolor)
+    ax.text(lon0,lat0+size+pad,'0',horizontalalignment = 'center',fontsize=labelsize,color=fontcolor)
+    ax.text(lon0+length/111/2*unitfrac,lat0+size+pad,'km',horizontalalignment = 'center',fontsize=labelsize,color=fontcolor)
+```
+
+### Example
+
+```{python draw world map, fig.cap='North Arrow & Scalebar'}
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+import cartopy.feature as cfeature
+import numpy as np
+import matplotlib.patches as mpatches
+def add_north(ax, labelsize=20, loc_x=0.9, loc_y=0.9, width=0.02, height=0.1, pad=0.14,fontcolor='k'):
+    '''https://blog.csdn.net/qq_44907989/article/details/125584822'''
+    """
+    画一个比例尺带'N'文字注释
+    主要参数如下
+    ax: 要画的坐标区域 Axes实例 plt.gca()获取即可
+    labelsize: 显示'N'文字的大小
+    loc_x: 以文字下部为中心的占整个ax横向比例
+    loc_y: 以文字下部为中心的占整个ax纵向比例
+    width: 指南针占ax比例宽度
+    height: 指南针占ax比例高度
+    pad: 文字符号占ax比例间隙
+    return: None
+    """
+    minx, maxx = ax.get_xlim()
+    miny, maxy = ax.get_ylim()
+    ylen = maxy - miny
+    xlen = maxx - minx
+    left = [minx + xlen*(loc_x - width*.5), miny + ylen*(loc_y - pad)]
+    right = [minx + xlen*(loc_x + width*.5), miny + ylen*(loc_y - pad)]
+    top = [minx + xlen*loc_x, miny + ylen*(loc_y - pad + height)]
+    center = [minx + xlen*loc_x, left[1] + (top[1] - left[1])*.4]
+    triangle = mpatches.Polygon([left, top, right, center], facecolor='k',edgecolor='k',linewidth=1.5)
+    ax.text(s='N',
+            x=minx + xlen*loc_x,
+            y=miny + ylen*(loc_y - pad + height),
+            fontsize=labelsize,
+            fontweight='semibold',
+            horizontalalignment='center',
+            verticalalignment='bottom',
+            color=fontcolor,)
+    ax.add_patch(triangle)
+def add_scalebar(ax,lon0,lat0,length,size=0.45,labelsize=20,fontcolor='k',pad=0.02,linewidth=1.5,unitfrac=2.43):
+    '''https://blog.csdn.net/qq_44907989/article/details/125584822'''
+    '''
+    ax: 坐标轴
+    lon0: 经度
+    lat0: 纬度
+    length: 长度
+    size: 控制粗细和距离的
+    '''
+    # style 3
+    ax.hlines(y=lat0,  xmin = lon0, xmax = lon0+length/111, colors="black", ls="-", lw=linewidth, label='%d km' % (length))
+    ax.vlines(x = lon0, ymin = lat0, ymax = lat0+size, colors="black", ls="-", lw=linewidth)
+    ax.vlines(x = lon0+length/2/111, ymin = lat0, ymax = lat0+size, colors="black", ls="-", lw=linewidth)
+    ax.vlines(x = lon0+length/111, ymin = lat0, ymax = lat0+size, colors="black", ls="-", lw=linewidth)
+    ax.text(lon0+length/111,lat0+size+pad,'%d' % (length),horizontalalignment = 'center',fontsize=labelsize,color=fontcolor)
+    ax.text(lon0+length/2/111,lat0+size+pad,'%d' % (length/2),horizontalalignment = 'center',fontsize=labelsize,color=fontcolor)
+    ax.text(lon0,lat0+size+pad,'0',horizontalalignment = 'center',fontsize=labelsize,color=fontcolor)
+    ax.text(lon0+length/111/2*unitfrac,lat0+size+pad,'km',horizontalalignment = 'center',fontsize=labelsize,color=fontcolor)
+
+fig = plt.figure(figsize=(15, 10))
+myproj=ccrs.PlateCarree()
+ax = fig.add_subplot(1, 1, 1, projection=myproj)
+extent=(-180,180,-90,90)
+ax.add_feature(cfeature.BORDERS, linestyle=':',edgecolor='w',linewidth=0.3)
+ax.add_feature(cfeature.LAND, edgecolor='w',facecolor='grey')
+ax.add_feature(cfeature.OCEAN,facecolor='w')
+
+gls=ax.gridlines(draw_labels=["top",  "left", ], crs=ccrs.PlateCarree(),color='DarkSlateGray', linestyle=(0, (10, 8)), linewidth=0.5,
+                 alpha=0.3,y_inline=False, x_inline=False,rotate_labels=0,xpadding=1,ypadding=1,
+                 xlocs=np.arange(extent[0],extent[1]+30,30), 
+                 ylocs=np.arange(extent[2],extent[3]+30,30),
+                 xlabel_style={'fontsize':16},ylabel_style={'fontsize':16},)
+#{"top": "x", "left": "y"}"geo"
+
+ax.xaxis.set_major_formatter(LongitudeFormatter())
+ax.yaxis.set_major_formatter(LatitudeFormatter())
+ax.tick_params(axis='both',which='both',width=1.5,direction='out',labelsize=16,pad=0,
+               top=True,bottom=False,labeltop=True,labelbottom=False)
+ax.set_extent(extent,crs=myproj)
+
+add_north(ax,labelsize=18,loc_x=0.97,loc_y=0.95,width=0.03,height=0.12)
+add_scalebar(ax,lon0=-175,lat0=-85,length=10000,size=4,pad=1,linewidth=2)
+plt.show()
+```
+
+
+## Significant Trend Hatch
+
+使用影线标注具有显著性的区域，影线样式见[影线样式参考-matplotlib中文网](https://matplotlib.net/stable/gallery/shapes_and_collections/hatch_style_reference.html#:~:text=%E6%AD%A4%E7%A4%BA%E4%BE%8B%E4%B8%AD%E6%98%BE%E7%A4%BA%E4%BA%86%E4%BB%A5)
+```{python significant trend hatch}
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import xarray as xr
+import numpy as np
+
+# 假设 data1 是一个 xarray 数据集，包含显著性数据
+# 这里创建一个示例数据集
+lon = np.linspace(0, 360, 100)
+lat = np.linspace(-90, 90, 50)
+lon, lat = np.meshgrid(lon, lat)
+data = np.random.rand(50, 100)
+data[data > 0.05] = 0.06  # 将大于 0.05 的值设为 0.06，表示不显著
+data1 = xr.DataArray(data, coords=[lat[:, 0], lon[0, :]], dims=["lat", "lon"])
+
+fig, ax = plt.subplots(subplot_kw={'projection': ccrs.PlateCarree()})
+
+# 绘制等高线图
+p = data1.plot.contourf(ax=ax, transform=ccrs.PlateCarree(), levels=[0, 0.05, 1],     
+                        hatches=['...', None], colors="none", add_colorbar=False, zorder=3)
+
+# 添加图例，只显示显著性趋势
+handles, labels = p.legend_elements()
+significant_handle = handles[0]
+ax.legend([significant_handle], ['Significant'], loc='upper right')
+
+plt.show()
+```
+
+## Self design legend
+
+[编写自定义图例-Matplotlib中文网](https://matplotlib.net/stable/gallery/text_labels_and_annotations/custom_legends.html#:~:text=%E5%BD%B1%E7%BA%BF%20%E6%A0%B7%E5%BC%8F%E5%8F%82%E8%80%83)
+
+```{python self design legend}
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+fig, axs = plt.subplots(1,2,figsize=(10,5))
+ls_legend1 = [Line2D([0], [0], color='k', linestyle=linestyle, lw=2) for linestyle in ['-','--','-.']]
+ls_legend2 = [Line2D([0], [0], color=color, lw=2) for color in ['r','g','b']]
+ls_labels = ['lsa','lsb','lsc','lsd','lse','lsf']
+axs[0].legend(ls_legend1+ls_legend2, ls_labels, loc='upper right', fontsize=18, bbox_to_anchor=(0.91,0.9),ncol=2,columnspacing=1,
+           borderpad=0.5, labelspacing=0.3, handlelength=1.3, handletextpad=0.5,)#)
+hatch_patch = mpatches.Patch(facecolor='none', edgecolor='black', hatch='////', label='Significant')
+patch1 = mpatches.Patch(color='lightgrey', label='Not Interested')
+axs[1].legend([hatch_patch,patch1], ['Significant','Not Interested'], loc='lower right',bbox_to_anchor=(0.915,0.23), handlelength=1.3, handletextpad=0.4,
+           fontsize=18, edgecolor='None',facecolor='None')
+plt.show()
+```
+
+## Colorbar & Scientific Notation
+
+### Colorbar
+
+添加colorbar的位置方法：
+
+1.使用from mpl_toolkits.axes_grid1中的make_axes_locatable()方法确定被添加colorbar的图的轴所处位置，再append_axes()。
+
+```
+cs = ax1.contourf(x, y, z, cmap='jet', extend='both', alpha=0.5)
+divider1 = make_axes_locatable(ax1)
+cax1 = divider1.append_axes("right", size="5%",pad=0.1)
+cb1=fig.colorbar(cs, cax=cax1, orientation='vertical', fraction=0.05,)
+```
+
+2.直接用fig.add_axes()指定colorbar在整张图上的位置。
+
+```
+cbax2position=[0.75, 0.557, 0.2, 0.013]
+cbax2 = fig.add_axes(cbax2position)
+cb2 = fig.colorbar(cs2,cax=cbax2, orientation='horizontal', fraction=0.05, pad=0.2)
+```
+
+3.图省事直接用fig.colorbar()，可以通过pad、fraction等参数调整colorbar的位置。
+
+```
+fig.colorbar(cs3, ax=ax3, orientation='vertical',pad=0.02)
+```
+
+具体参数说明：
+
+Additional keyword arguments are of two kinds:
+ 
+  axes properties:
+ 
+    location : None or {'left', 'right', 'top', 'bottom'}
+        The location, relative to the parent axes, where the colorbar axes
+        is created.  It also determines the *orientation* of the colorbar
+        (colorbars on the left and right are vertical, colorbars at the top
+        and bottom are horizontal).  If None, the location will come from the
+        *orientation* if it is set (vertical colorbars on the right, horizontal
+        ones at the bottom), or default to 'right' if *orientation* is unset.
+    orientation : None or {'vertical', 'horizontal'}
+        The orientation of the colorbar.  It is preferable to set the *location*
+        of the colorbar, as that also determines the *orientation*; passing
+        incompatible values for *location* and *orientation* raises an exception.
+    fraction : float, default: 0.15
+        Fraction of original axes to use for colorbar.
+    shrink : float, default: 1.0
+        Fraction by which to multiply the size of the colorbar.
+    aspect : float, default: 20
+        Ratio of long to short dimensions.
+ 
+    pad : float, default: 0.05 if vertical, 0.15 if horizontal
+        Fraction of original axes between colorbar and new image axes.
+    anchor : (float, float), optional
+        The anchor point of the colorbar axes.
+        Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
+    panchor : (float, float), or *False*, optional
+        The anchor point of the colorbar parent axes. If *False*, the parent
+        axes' anchor will be unchanged.
+        Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
+ 
+  colorbar properties:
+ 
+    ============  ====================================================
+    Property      Description
+    ============  ====================================================
+    *extend*      {'neither', 'both', 'min', 'max'}
+                  If not 'neither', make pointed end(s) for out-of-
+                  range values.  These are set for a given colormap
+                  using the colormap set_under and set_over methods.
+    *extendfrac*  {*None*, 'auto', length, lengths}
+                  If set to *None*, both the minimum and maximum
+                  triangular colorbar extensions with have a length of
+                  5% of the interior colorbar length (this is the
+                  default setting). If set to 'auto', makes the
+                  triangular colorbar extensions the same lengths as
+                  the interior boxes (when *spacing* is set to
+                  'uniform') or the same lengths as the respective
+                  adjacent interior boxes (when *spacing* is set to
+                  'proportional'). If a scalar, indicates the length
+                  of both the minimum and maximum triangular colorbar
+                  extensions as a fraction of the interior colorbar
+                  length. A two-element sequence of fractions may also
+                  be given, indicating the lengths of the minimum and
+                  maximum colorbar extensions respectively as a
+                  fraction of the interior colorbar length.
+    *extendrect*  bool
+                  If *False* the minimum and maximum colorbar extensions
+                  will be triangular (the default). If *True* the
+                  extensions will be rectangular.
+    *spacing*     {'uniform', 'proportional'}
+                  Uniform spacing gives each discrete color the same
+                  space; proportional makes the space proportional to
+                  the data interval.
+    *ticks*       *None* or list of ticks or Locator
+                  If None, ticks are determined automatically from the
+                  input.
+    *format*      None or str or Formatter
+                  If None, `~.ticker.ScalarFormatter` is used.
+                  If a format string is given, e.g., '%.3f', that is used.
+                  An alternative `~.ticker.Formatter` may be given instead.
+    *drawedges*   bool
+                  Whether to draw lines at color boundaries.
+    *label*       str
+                  The label on the colorbar's long axis.
+    ============  ====================================================
+ 
+    The following will probably be useful only in the context of
+    indexed colors (that is, when the mappable has norm=NoNorm()),
+    or other unusual circumstances.
+ 
+    ============   ===================================================
+    Property       Description
+    ============   ===================================================
+    *boundaries*   None or a sequence
+    *values*       None or a sequence which must be of length 1 less
+                   than the sequence of *boundaries*. For each region
+                   delimited by adjacent entries in *boundaries*, the
+                   colormapped to the corresponding value in values
+                   will be used.
+    ============   ===================================================
+ 
+ 
+ 
+If *mappable* is a `~.contour.ContourSet`, its *extend* kwarg is included
+automatically.
+ 
+The *shrink* kwarg provides a simple way to scale the colorbar with respect
+to the axes. Note that if *cax* is specified, it determines the size of the
+colorbar and *shrink* and *aspect* kwargs are ignored.
+ 
+For more precise control, you can manually specify the positions of
+the axes objects in which the mappable and the colorbar are drawn.  In
+this case, do not use any of the axes properties kwargs.
+
+### Scientific Notation
+
+[matplotlib.axes.Axes.ticklabel_format](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.ticklabel_format.html)
+
+```
+ax.ticklabel_format(axis="y", style="sci", scilimits=(0,0),useMathText=True)
+```
+
+使用科学计数法后会产生数量级标签(offset_text)，可以通过offset_text=ax.yaxis.offsetText的set方法调整数量级标签的左右位置和字体等text对象的参数，但是调整y或者position都无法调整该标签的上下位置。
+
+解决方法：
+
+```
+offset_transform = offset_copy(offset_text.get_transform(), fig=fig, y=11, units='points')
+offset_text.set_transform(offset_transform)
+```
+
+### Example
+
+```{python scientific notation}
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.gridspec import GridSpec
+from matplotlib.transforms import offset_copy
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+x = np.linspace(-3, 5, 150).reshape(1, -1)
+y = np.linspace(-3, 5, 120).reshape(-1, 1)
+z = (np.cos(x) + np.sin(y))/1000
+x, y = x.flatten(), y.flatten()
+
+fig = plt.figure(figsize=(8,8))#,dpi=120
+gs = GridSpec(nrows=3,ncols=3,wspace=0.15,hspace=0.4)
+
+plt.rcParams['font.size'] = 18
+ax1 = fig.add_subplot(gs[0:2,0:2])
+cs = ax1.contourf(x, y, z, cmap='jet', extend='both', alpha=0.5)
+divider1 = make_axes_locatable(ax1)
+cax1 = divider1.append_axes("right", size="5%",pad=0.1)
+cb1=fig.colorbar(cs, cax=cax1, orientation='vertical', fraction=0.05,)
+cb1.ax.ticklabel_format(axis="y", style="sci", scilimits=(0,0),useMathText=True)
+cb1.ax.yaxis.get_offset_text().set(fontsize=18,x=4.8)
+# 此时调整数量级标签的位置和大小,只能调左右,不能调上下
+
+plt.rcParams['font.size'] = 12
+ax2position=[0.75, 0.58, 0.2, 0.2]
+ax2 = fig.add_axes(ax2position)
+cs2 = ax2.contourf(x, y, z, cmap='jet', extend='both', alpha=0.5)
+ax2.tick_params(axis='x',bottom=False,top=True,labelbottom=False,labeltop=True)#,labelsize=12
+cbax2position=[0.75, 0.557, 0.2, 0.013]
+cbax2 = fig.add_axes(cbax2position)
+cb2 = fig.colorbar(cs2,cax=cbax2, orientation='horizontal', fraction=0.05, pad=0.2)
+cb2.ax.ticklabel_format(axis="x", style="sci", scilimits=(0,0),useMathText=True)
+for label in cb2.ax.get_xticklabels():
+    label.set_rotation(45)
+    label.set_ha('center')
+offset_text=cb2.ax.xaxis.offsetText
+offset_text.set(fontsize=11,x=1.06)  #调整数量级标签的位置和大小,只能调左右,不能调上下,试了y和position都不行
+# 使用 OffsetFrom 手动调整位置
+offset_transform = offset_copy(offset_text.get_transform(), fig=fig, y=11, units='points')
+offset_text.set_transform(offset_transform)
+
+plt.rcParams['font.size'] = 18
+ax3 = fig.add_subplot(gs[2, 0:2])
+data3 = np.random.rand(5,10)
+cs3 = ax3.imshow(data3, cmap='inferno')
+cb3=fig.colorbar(cs3, ax=ax3,location='left', orientation='vertical',pad=0.1,fraction=0.06)
+
+ax4 = fig.add_subplot(gs[2, 2])
+data4 = np.random.rand(5, 5)
+ax4.imshow(data4, cmap='magma')
+
+# plt.tight_layout() 用不用没差
+plt.show()
+```
+
+
+# 根据地理栅格数据画图
+
+## 读取数据后对纬度翻转
+
+DEM 数据来源：[NOAA-ETOPO](https://www.ncei.noaa.gov/products/etopo-global-relief-model)，GeoTiff格式、60 Arc-Second分辨率的Bedrock elevation数据。
+
+```{python read geotiff}
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import numpy as np
+import xarray as xr
+import rioxarray as rxr
+ 
+# 基础轮廓
+fig, axs = plt.subplots(1, 2,figsize=(12, 5), subplot_kw={'projection': ccrs.PlateCarree()})
+extent = (106, 127, 17, 41)
+
+for ax in axs:
+  ax.set_extent(extent,crs=ccrs.PlateCarree())
+  ax.add_feature(cfeature.LAND,facecolor='grey')
+  ax.add_feature(cfeature.OCEAN,facecolor='lightblue')
+  ax.add_feature(cfeature.COASTLINE,edgecolor='DarkSlateGray')
+ 
+# 读取高程图
+file_path="ETOPO_2022_v1_60s_N90W180_bed.tif"
+dem_ds=rxr.open_rasterio(file_path)
+data0 = dem_ds[0]
+data0=xr.where(data0<0,-data0,np.nan)
+
+[ax1,ax2]=axs
+
+# 对于ax1，纬度倒转
+lons=dem_ds.x.values
+lats=np.flip(dem_ds.y.values) # 倒转纬度
+# lats=dem_ds.y.values[::-1, :] # 另一种方法
+lon, lat = np.meshgrid(lons, lats)
+data_values = [200]
+cs = ax1.contour(lon, lat, data0[::-1, :], levels=data_values,colors='b')
+manual_locations = [(lon[i, j], lat[i, j]) for i, j in [(1000, 1000), (500, 500)]]
+ax1.clabel(cs, inline=True, fontsize=14, fmt='%1.0f', manual=manual_locations,inline_spacing=20)
+
+
+# 对于ax2，不做其他操作
+lons=dem_ds.x.values
+lats=dem_ds.y.values
+lon, lat = np.meshgrid(lons, lats)
+data_values = [200]
+cs = ax2.contour(lon, lat, data0[:, :], levels=data_values,colors='g')
+manual_locations = [(lon[i, j], lat[i, j]) for i, j in [(1000, 1000), (500, 500)]]
+ax2.clabel(cs, inline=True, fontsize=14, fmt='%1.0f', manual=manual_locations,inline_spacing=20)
+
+plt.show()
+
+```
+
+呃，画完图才发现之前需要翻转是因为contour时取用了data0[::-1, :]，复制前人代码时没有带脑子……反正如果遇到需要翻转的情况，可以用[::-1, :]或者np.flip()。
+
+## 读取数据后纠正经度
+
+有些地理数据用nc文件格式储存时，经度并不保存为-180至180而是0至360，此时需要进一步处理。
+
+示例代码待补充。
